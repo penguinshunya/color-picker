@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useEffect } from "react";
 import { useRef } from "react";
 import { useCallback } from "react";
 
@@ -104,7 +105,9 @@ export const App: React.VFC<{}> = () => {
     b: number;
   }>(null);
 
-  const handleClickCanvas = useCallback(
+  const [isMouseDown, setIsMouseDown] = useState(false);
+
+  const handleMouseEvent = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const cvs = canvasRef.current;
       const ctx = cvs.getContext("2d")!;
@@ -121,6 +124,27 @@ export const App: React.VFC<{}> = () => {
     },
     []
   );
+
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    setIsMouseDown(true);
+    handleMouseEvent(e);
+  }, [handleMouseEvent]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (isMouseDown) {
+      handleMouseEvent(e);
+    }
+  }, [handleMouseEvent, isMouseDown]);
+
+  useEffect(() => {
+    function handleMouseUp() {
+      setIsMouseDown(false);
+    }
+    window.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
 
   return (
     <div
@@ -170,7 +194,8 @@ export const App: React.VFC<{}> = () => {
         </div>
       )}
       <canvas
-        onClick={handleClickCanvas}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
         ref={canvasRef}
         style={{
           objectFit: "contain",
