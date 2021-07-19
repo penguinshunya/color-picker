@@ -177,11 +177,11 @@ export const App: React.VFC<{}> = () => {
             backgroundColor: "white",
             border: "1px solid rgba(0, 0, 0, 0.5)",
             display: "grid",
-            left: 0,
+            right: 0,
             padding: 4,
             position: "fixed",
             rowGap: 4,
-            top: 0,
+            bottom: 0,
           }}
         >
           {color === null ? (
