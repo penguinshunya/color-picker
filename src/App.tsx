@@ -70,6 +70,9 @@ export const App: React.VFC<{}> = () => {
       return console.error("ファイルが選択されていません");
     }
     const file = files[0];
+    if (!file.type.startsWith("image/")) {
+      return console.error("ファイルが画像ではありません");
+    }
     const result = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader();
       reader.addEventListener("load", () => {
@@ -137,7 +140,7 @@ export const App: React.VFC<{}> = () => {
           position: "absolute",
           top: "50%",
           transform: "translate(-50%, -50%)",
-        }}>ここにファイルをドロップ</div>
+        }}>ここに画像ファイルをドロップ</div>
       ) : (
         <div
           style={{
