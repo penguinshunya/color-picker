@@ -27,7 +27,7 @@ const Input: React.VFC<JSX.IntrinsicElements["input"]> = ({ ...props }) => {
   );
 };
 
-const Row: React.VFC<{ label: string; text: string; }> = ({ label, text }) => {
+const Row: React.VFC<{ label: string; text: string }> = ({ label, text }) => {
   return (
     <label
       style={{
@@ -45,11 +45,7 @@ const Row: React.VFC<{ label: string; text: string; }> = ({ label, text }) => {
       >
         {label}
       </span>
-      <Input
-        type="text"
-        readOnly
-        value={text}
-      />
+      <Input type="text" readOnly value={text} />
     </label>
   );
 };
@@ -125,16 +121,22 @@ export const App: React.VFC<{}> = () => {
     []
   );
 
-  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    setIsMouseDown(true);
-    handleMouseEvent(e);
-  }, [handleMouseEvent]);
-
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (isMouseDown) {
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      setIsMouseDown(true);
       handleMouseEvent(e);
-    }
-  }, [handleMouseEvent, isMouseDown]);
+    },
+    [handleMouseEvent]
+  );
+
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      if (isMouseDown) {
+        handleMouseEvent(e);
+      }
+    },
+    [handleMouseEvent, isMouseDown]
+  );
 
   useEffect(() => {
     function handleMouseUp() {
@@ -159,12 +161,16 @@ export const App: React.VFC<{}> = () => {
       }}
     >
       {!isDrop ? (
-        <div style={{
-          left: "50%",
-          position: "absolute",
-          top: "50%",
-          transform: "translate(-50%, -50%)",
-        }}>ここに画像ファイルをドロップ</div>
+        <div
+          style={{
+            left: "50%",
+            position: "absolute",
+            top: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          ここに画像ファイルをドロップ
+        </div>
       ) : (
         <div
           style={{
@@ -182,13 +188,23 @@ export const App: React.VFC<{}> = () => {
             <>画像内のピクセルをクリック</>
           ) : (
             <>
-              <div style={{
-                backgroundColor: `#${toHex(color.r)}${toHex(color.g)}${toHex(color.b)}`,
-                border: "1px solid rgba(0, 0, 0, 0.5)",
-                height: "calc(1em + 8px)",
-              }}></div>
-              <Row label="HEX" text={`#${toHex(color.r)}${toHex(color.g)}${toHex(color.b)}`} />
-              <Row label="RGBA" text={`rgba(${color.r}, ${color.g}, ${color.b}, 1.0)`} />
+              <div
+                style={{
+                  backgroundColor: `#${toHex(color.r)}${toHex(color.g)}${toHex(
+                    color.b
+                  )}`,
+                  border: "1px solid rgba(0, 0, 0, 0.5)",
+                  height: "calc(1em + 8px)",
+                }}
+              ></div>
+              <Row
+                label="HEX"
+                text={`#${toHex(color.r)}${toHex(color.g)}${toHex(color.b)}`}
+              />
+              <Row
+                label="RGBA"
+                text={`rgba(${color.r}, ${color.g}, ${color.b}, 1.0)`}
+              />
             </>
           )}
         </div>
