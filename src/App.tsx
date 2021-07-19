@@ -3,7 +3,7 @@ import { useRef } from "react";
 import { useCallback } from "react";
 
 function toHex(val: number) {
-  return val.toString(16);
+  return ("00" + val.toString(16)).slice(-2);
 }
 
 const Input: React.VFC<JSX.IntrinsicElements["input"]> = ({ ...props }) => {
