@@ -2,8 +2,60 @@ import { useState } from "react";
 import { useRef } from "react";
 import { useCallback } from "react";
 
+function toHex(val: number) {
+  return val.toString(16);
+}
+
+const Input: React.VFC<JSX.IntrinsicElements["input"]> = ({ ...props }) => {
+  const handleFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
+    e.target.select();
+  }, []);
+
+  return (
+    <input
+      {...props}
+      onFocus={handleFocus}
+      style={{
+        border: "1px solid rgba(0, 0, 0, 0.5)",
+        borderRadius: 4,
+        fontFamily: "monospace",
+        padding: "4px 8px",
+        width: 256,
+      }}
+    />
+  );
+};
+
+const Row: React.VFC<{ label: string; text: string; }> = ({ label, text }) => {
+  return (
+    <label
+      style={{
+        alignItems: "center",
+        columnGap: "4px",
+        display: "grid",
+        gridTemplateColumns: "64px 1fr",
+      }}
+    >
+      <span
+        style={{
+          fontSize: "12px",
+          textAlign: "right",
+        }}
+      >
+        {label}
+      </span>
+      <Input
+        type="text"
+        readOnly
+        value={text}
+      />
+    </label>
+  );
+};
+
 export const App: React.VFC<{}> = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null!);
+  const [isDrop, setIsDrop] = useState(false);
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -40,38 +92,87 @@ export const App: React.VFC<{}> = () => {
     canvasRef.current.height = image.height;
     const ctx = canvasRef.current.getContext("2d")!;
     ctx.drawImage(image, 0, 0);
+    setIsDrop(true);
   }, []);
 
-  const [rgba, setRgba] = useState<Uint8ClampedArray | null>(null);
+  const [color, setColor] = useState<null | {
+    r: number;
+    g: number;
+    b: number;
+  }>(null);
 
-  const handleClickCanvas = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const cvs = canvasRef.current;
-    const ctx = cvs.getContext("2d")!;
-    const data = ctx.getImageData(e.clientX, e.clientY, 1, 1);
-    setRgba(data.data);
-  }, []);
+  const handleClickCanvas = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const cvs = canvasRef.current;
+      const ctx = cvs.getContext("2d")!;
+
+      const rect = cvs.getBoundingClientRect();
+      const x = e.clientX - (rect.left + window.pageXOffset);
+      const y = e.clientY - (rect.top + window.pageYOffset);
+      const data = ctx.getImageData(x, y, 1, 1);
+      setColor({
+        r: data.data[0],
+        g: data.data[1],
+        b: data.data[2],
+      });
+    },
+    []
+  );
 
   return (
-    <div onDragOver={handleDragOver} onDrop={handleDrop} style={{
-      backgroundColor: "rgba(0, 0, 0, 0.1)",
-      height: "100vh",
-      overflow: "auto",
-      position: "relative",
-      width: "100%",
-    }}>
-      {rgba !== null && (
+    <div
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+      style={{
+        backgroundColor: "rgba(0, 0, 0, 0.1)",
+        height: "100vh",
+        overflow: "auto",
+        position: "relative",
+        width: "100%",
+      }}
+    >
+      {!isDrop ? (
         <div style={{
-          backgroundColor: `rgba(${rgba[0]}, ${rgba[1]}, ${rgba[2]}, ${rgba[3]})`,
-          height: 32,
-          left: 0,
+          left: "50%",
           position: "absolute",
-          top: 0,
-          width: 32,
-        }} />
+          top: "50%",
+          transform: "translate(-50%, -50%)",
+        }}>ここにファイルをドロップ</div>
+      ) : (
+        <div
+          style={{
+            backgroundColor: "white",
+            border: "1px solid rgba(0, 0, 0, 0.5)",
+            display: "grid",
+            left: 0,
+            padding: 4,
+            position: "fixed",
+            rowGap: 4,
+            top: 0,
+          }}
+        >
+          {color === null ? (
+            <>画像内のピクセルをクリック</>
+          ) : (
+            <>
+              <div style={{
+                backgroundColor: `#${toHex(color.r)}${toHex(color.g)}${toHex(color.b)}`,
+                border: "1px solid rgba(0, 0, 0, 0.5)",
+                height: "calc(1em + 8px)",
+              }}></div>
+              <Row label="HEX" text={`#${toHex(color.r)}${toHex(color.g)}${toHex(color.b)}`} />
+              <Row label="RGBA" text={`rgba(${color.r}, ${color.g}, ${color.b}, 1.0)`} />
+            </>
+          )}
+        </div>
       )}
-      <canvas onClick={handleClickCanvas} ref={canvasRef} style={{
-        objectFit: "contain",
-      }} />
+      <canvas
+        onClick={handleClickCanvas}
+        ref={canvasRef}
+        style={{
+          objectFit: "contain",
+        }}
+      />
     </div>
   );
 };
