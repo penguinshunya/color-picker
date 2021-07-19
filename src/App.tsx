@@ -2,53 +2,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import { useRef } from "react";
 import { useCallback } from "react";
-
-function toHex(val: number) {
-  return ("00" + val.toString(16)).slice(-2);
-}
-
-const Input: React.VFC<JSX.IntrinsicElements["input"]> = ({ ...props }) => {
-  const handleFocus = useCallback((e: React.FocusEvent<HTMLInputElement>) => {
-    e.target.select();
-  }, []);
-
-  return (
-    <input
-      {...props}
-      onFocus={handleFocus}
-      style={{
-        border: "1px solid rgba(0, 0, 0, 0.5)",
-        borderRadius: 4,
-        fontFamily: "monospace",
-        padding: "4px 8px",
-        width: 256,
-      }}
-    />
-  );
-};
-
-const Row: React.VFC<{ label: string; text: string }> = ({ label, text }) => {
-  return (
-    <label
-      style={{
-        alignItems: "center",
-        columnGap: "4px",
-        display: "grid",
-        gridTemplateColumns: "64px 1fr",
-      }}
-    >
-      <span
-        style={{
-          fontSize: "12px",
-          textAlign: "right",
-        }}
-      >
-        {label}
-      </span>
-      <Input type="text" readOnly value={text} />
-    </label>
-  );
-};
+import DraggableColorBox from "./components/draggable-color-box";
 
 export const App: React.VFC<{}> = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null!);
@@ -172,42 +126,7 @@ export const App: React.VFC<{}> = () => {
           ここに画像ファイルをドロップ
         </div>
       ) : (
-        <div
-          style={{
-            backgroundColor: "white",
-            border: "1px solid rgba(0, 0, 0, 0.5)",
-            display: "grid",
-            right: 0,
-            padding: 4,
-            position: "fixed",
-            rowGap: 4,
-            bottom: 0,
-          }}
-        >
-          {color === null ? (
-            <>画像内のピクセルをクリック</>
-          ) : (
-            <>
-              <div
-                style={{
-                  backgroundColor: `#${toHex(color.r)}${toHex(color.g)}${toHex(
-                    color.b
-                  )}`,
-                  border: "1px solid rgba(0, 0, 0, 0.5)",
-                  height: "calc(1em + 8px)",
-                }}
-              ></div>
-              <Row
-                label="HEX"
-                text={`#${toHex(color.r)}${toHex(color.g)}${toHex(color.b)}`}
-              />
-              <Row
-                label="RGBA"
-                text={`rgba(${color.r}, ${color.g}, ${color.b}, 1.0)`}
-              />
-            </>
-          )}
-        </div>
+        <DraggableColorBox color={color} />
       )}
       <canvas
         onMouseDown={handleMouseDown}
